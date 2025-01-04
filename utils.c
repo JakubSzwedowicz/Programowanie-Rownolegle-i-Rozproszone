@@ -16,9 +16,17 @@ int parseArguments(int argc, char **argv, int *func, int *size) {
         switch (opt) {
             case 'f':
                 *func = strtol(optarg, NULL, 10);
+                if (*func != 1 && *func != 16 && *func != 17) {
+                    fprintf(stderr, "Function number must be 1, 16 or 17.\n");
+                    return 1;
+                }
             break;
             case 's':
                 *size = strtol(optarg, NULL, 10);
+                if (*size <= 0) {
+                    fprintf(stderr, "Size must be greater than 0.\n");
+                    return 1;
+                }
             break;
             default:
                 fprintf(stderr, "Usage: %s -f <function_number> -s <size>\n", argv[0]);
@@ -29,7 +37,7 @@ int parseArguments(int argc, char **argv, int *func, int *size) {
     if (*func == 0 || *size <= 0) {
         fprintf(stderr, "Usage: %s -f <function_number> -s <Size>\n"
                 "Options:\n"
-                "\t-f     Use function number 1, 3 or 17.\n"
+                "\t-f     Use function number 1, 16 or 17.\n"
                 "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n", argv[0]);
         return 1;
     }
@@ -40,10 +48,13 @@ int parseArguments(int argc, char **argv, int *func, int *size) {
 Function1Arg getFunction(const int func) {
     switch (func) {
         case 1:
+            fprintf(stdout, "Using function: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
             return quadraticFunction1;
         case 16:
+            fprintf(stdout, "Using function: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
             return trigonometricFunction16;
         case 17:
+            fprintf(stdout, "Using function: f(x) = (sum1->N(i * x_i^2))^2\n");
             return quarticFunction17;
         default:
             return NULL;
