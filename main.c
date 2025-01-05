@@ -10,7 +10,6 @@
 #include "Nelder-Mead.h"
 #include "utils.h"
 
-#define EPSILON 1e-6
 #define ALPHA 1.5
 #define BETA  0.5
 #define S     1.0
@@ -19,8 +18,9 @@
 int main(char argc, char **argv) {
     int size = 0;
     int function = 0;
+    double epsilon = 1e-3;
 
-    if (parseArguments(argc, argv, &function, &size) != 0) {
+    if (parseArguments(argc, argv, &function, &size, &epsilon) != 0) {
         return 1;
     }
 
@@ -30,7 +30,7 @@ int main(char argc, char **argv) {
     int iters = 0;
 
     clock_t start = clock();
-    nelderMeadSequential(func, fillInitialVec, size, S, ALPHA, BETA, EPSILON, bestPoint,
+    nelderMeadSequential(func, fillInitialVec, size, S, ALPHA, BETA, epsilon, bestPoint,
                          &iters);
     clock_t end = clock();
 
@@ -38,6 +38,8 @@ int main(char argc, char **argv) {
     printf("Sequential result:\n");
     printf("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
     printf("\tmin x      = %s\n", print(bestPoint, size));
+    printf("\tsize       = %d\n", size);
+    printf("\tepsilon    = %.g\n", epsilon);
     printf("\titerations = %d\n", iters);
     printf("\ttime       = %.3f s\n", time_spent);
 

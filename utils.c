@@ -10,9 +10,9 @@
 
 #include "utils.h"
 
-int parseArguments(int argc, char **argv, int *func, int *size) {
+int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon) {
     int opt;
-    while ((opt = getopt(argc, argv, "f:s:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:s:e:")) != -1) {
         switch (opt) {
             case 'f':
                 *func = strtol(optarg, NULL, 10);
@@ -20,25 +20,34 @@ int parseArguments(int argc, char **argv, int *func, int *size) {
                     fprintf(stderr, "Function number must be 1, 16 or 17.\n");
                     return 1;
                 }
-            break;
+                break;
             case 's':
                 *size = strtol(optarg, NULL, 10);
                 if (*size <= 0) {
                     fprintf(stderr, "Size must be greater than 0.\n");
                     return 1;
                 }
-            break;
+                break;
+            case 'e':
+                *epsilon = pow(10, -strtol(optarg, NULL, 10));
+                if (*epsilon < 0) {
+                    fprintf(stderr, "Epsilon cannot be negative.\n");
+                    return 1;
+                }
+                break;
+            case '?':
             default:
-                fprintf(stderr, "Usage: %s -f <function_number> -s <size>\n", argv[0]);
-            return 1;
+                fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_value>\n", argv[0]);
+                return 1;
         }
     }
 
-    if (*func == 0 || *size <= 0) {
+    if (*func == 0 || *size <= 0 || epsilon < 0) {
         fprintf(stderr, "Usage: %s -f <function_number> -s <Size>\n"
                 "Options:\n"
                 "\t-f     Use function number 1, 16 or 17.\n"
-                "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n", argv[0]);
+                "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n"
+                "\t-e     Pass epsilon exponential such as 3, 6, 9 to be used in 1e-x\n", argv[0]);
         return 1;
     }
 
@@ -51,7 +60,8 @@ Function1Arg getFunction(const int func) {
             fprintf(stdout, "Using function: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
             return quadraticFunction1;
         case 16:
-            fprintf(stdout, "Using function: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
+            fprintf(
+                stdout, "Using function: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
             return trigonometricFunction16;
         case 17:
             fprintf(stdout, "Using function: f(x) = (sum1->N(i * x_i^2))^2\n");
@@ -124,9 +134,9 @@ int quarticFunction17FillInitialVec(double *vec, const int size) {
     return 0;
 }
 
-const char* print(const double* vec, const int size) {
+const char *print(const double *vec, const int size) {
     static char buffer[1024];
-    char* ptr = buffer;
+    char *ptr = buffer;
     int offset = 0;
 
     for (int i = 0; i < size; i++) {

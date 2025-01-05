@@ -9,7 +9,7 @@ typedef double (*Function1Arg)(const double *vec, const int size);
 
 typedef int (*Function1ArgFillInitialVec)(double *vec, const int size);
 
-int parseArguments(int argc, char **argv, int *func, int *size);
+int parseArguments(int argc, char **argv, int *func, int *size, double* epsilon);
 
 Function1Arg getFunction(const int func);
 
