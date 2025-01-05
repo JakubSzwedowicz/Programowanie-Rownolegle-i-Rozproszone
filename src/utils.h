@@ -9,7 +9,7 @@ typedef double (*Function1Arg)(const double *vec, const int size);
 
 typedef int (*Function1ArgFillInitialVec)(double *vec, const int size);
 
-int parseArguments(int argc, char **argv, int *func, int *size, double* epsilon, char* logfile, const int logfileSize);
+int parseArguments(int argc, char **argv, int *func, int *size, double* epsilon, char* logfile, const int logfileSize, char* command, const int commandSize);
 
 Function1Arg getFunction(const int func);
 
@@ -28,5 +28,7 @@ double quarticFunction17(const double *vec, const int size);
 int quarticFunction17FillInitialVec(double *vec, const int size);
 
 const char* print(const double* vec, const int size);
+
+const char* getFunctionName(const int func);
 
 #endif //UTILS_H

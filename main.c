@@ -21,8 +21,9 @@ int main(int argc, char **argv) {
     int function = 0;
     double epsilon = 1e-3;
     char logfile[1024] = "results.log";
+    char command[1024] = "";
 
-    if (parseArguments(argc, argv, &function, &size, &epsilon, logfile, sizeof(logfile)) != 0) {
+    if (parseArguments(argc, argv, &function, &size, &epsilon, logfile, sizeof(logfile), command, sizeof(command)) != 0) {
         return 1;
     }
     if (openLogFile(logfile) != 0) {
@@ -42,12 +43,15 @@ int main(int argc, char **argv) {
 
     double time_spent = (double) (end - start) / CLOCKS_PER_SEC;
     logMessage("Sequential result:\n");
+    logMessage("\tCommand: %s\n", command);
+    logMessage("\tFunction:  %s\n", getFunctionName(function));
     logMessage("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
     logMessage("\tmin x      = %s\n", print(bestPoint, size));
     logMessage("\tsize       = %d\n", size);
     logMessage("\tepsilon    = %.g\n", epsilon);
     logMessage("\titerations = %d\n", iters);
     logMessage("\ttime       = %.3f s\n", time_spent);
+
 
     free(bestPoint);
     return 0;

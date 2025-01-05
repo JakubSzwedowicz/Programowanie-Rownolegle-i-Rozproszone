@@ -11,7 +11,13 @@
 #include "utils.h"
 #include "logger.h"
 
-int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon, char* logfile, const int logfileSize) {
+int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon, char* logfile, const int logfileSize, char* command, const int commandSize) {
+    for (int i = 0; i < argc; i++) {
+        strncat(command, argv[i], commandSize - strlen(command) - 1);
+        if (i < argc - 1) {
+            strncat(command, " ", commandSize - strlen(command) - 1);
+        }
+    }
     int opt;
     while ((opt = getopt(argc, argv, "f:s:e:l:")) != -1) {
         switch (opt) {
@@ -67,13 +73,10 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon,
 Function1Arg getFunction(const int func) {
     switch (func) {
         case 1:
-            logMessage("Using function 1: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
             return quadraticFunction1;
         case 16:
-            logMessage("Using function 16: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
             return trigonometricFunction16;
         case 17:
-            logMessage("Using function 17: f(x) = (sum1->N(i * x_i^2))^2\n");
             return quarticFunction17;
         default:
             return NULL;
@@ -156,4 +159,19 @@ const char *print(const double *vec, const int size) {
     }
 
     return buffer;
+}
+
+const char* getFunctionName(const int func) {
+    static char buffer[1024];
+    switch (func) {
+        case 1:
+            return "Using function 1: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)";
+        case 16:
+            return "Using function 16: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)";
+        case 17:
+            return "Using function 17: f(x) = (sum1->N(i * x_i^2))^2";
+        default:
+            snprintf(buffer, sizeof(buffer), "Unknown function with code %d", func);
+        return buffer;
+    }
 }

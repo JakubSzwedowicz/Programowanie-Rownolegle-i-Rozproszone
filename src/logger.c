@@ -30,8 +30,7 @@ void closeLogFile(void)
     }
 }
 
-void logMessage(const char *fmt, ...)
-{
+void logMessage(const char *fmt, ...) {
     if (!gLogFile) {
         /* If no file is open, fallback to stderr. */
         va_list fallbackArgs;
