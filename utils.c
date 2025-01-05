@@ -61,14 +61,14 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon)
 Function1Arg getFunction(const int func) {
     switch (func) {
         case 1:
-            fprintf(stdout, "Using function: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
+            fprintf(stdout, "Using function 1: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
             return quadraticFunction1;
         case 16:
             fprintf(
-                stdout, "Using function: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
+                stdout, "Using function 16: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
             return trigonometricFunction16;
         case 17:
-            fprintf(stdout, "Using function: f(x) = (sum1->N(i * x_i^2))^2\n");
+            fprintf(stdout, "Using function 17: f(x) = (sum1->N(i * x_i^2))^2\n");
             return quarticFunction17;
         default:
             return NULL;

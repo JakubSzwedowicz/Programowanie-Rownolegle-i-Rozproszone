@@ -29,3 +29,13 @@ Po zbudowaniu programu można uruchomić go skryptem:
 ```bash
 ./scripts/run_tests_fast.sh
 ```
+Wyniki czasowe na moim komputerze (AMD 9800x3d) po uruchomieniu skryptu `./scripts/run_commands_from_README_table.sh`:
+
+| Komenda                  | Czas     |
+|--------------------------|----------|
+| ./App -f 1 -s 1500 -e 6  | 101.685s |
+| ./App -f 1 -s 1000 -e 9  | 40.675s  |
+| ./App -f 16 -s 500 -e 9  | 57.741s  |
+| ./App -f 16 -s 750 -e 6  | 142.663s |
+| ./App -f 17 -s 1000 -e 9 | 40.893s  |
+| ./App -f 17 -s 1500 -e 6 | 102.108s |

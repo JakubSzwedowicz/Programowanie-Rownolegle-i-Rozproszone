@@ -1,14 +1,8 @@
 #!/usr/bin/env bash
 
-NM_EXEC=$(find . -name "App" -type f -executable 2>/dev/null | head -n1)
-if [[ -z "$NM_EXEC" ]]; then
-    echo "ERROR: Could not find an executable named 'App' in the CURRENT DIRECTORY or SUBDIRECTORIES.
-     Are you calling inside /scripts/?"
-    exit 1
-else
-    echo "Using app under path: ${NM_EXEC}"
-fi
-
+source "$(dirname "$0")/utils.sh"
+NM_EXEC=$(find_executable "App")
+echo "Using executable: $NM_EXEC"
 
 # 1) Function #1 (quadraticFunction1)
 #    Known behavior:
