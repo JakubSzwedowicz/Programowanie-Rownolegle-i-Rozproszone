@@ -37,6 +37,7 @@ int main(char argc, char **argv) {
     double time_spent = (double) (end - start) / CLOCKS_PER_SEC;
     printf("Sequential result:\n");
     printf("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
+    printf("\tmin x      = %s\n", print(bestPoint, size));
     printf("\titerations = %d\n", iters);
     printf("\ttime       = %.3f s\n", time_spent);
 

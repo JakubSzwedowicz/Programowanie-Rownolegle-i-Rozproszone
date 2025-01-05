@@ -27,4 +27,6 @@ double quarticFunction17(const double *vec, const int size);
 
 int quarticFunction17FillInitialVec(double *vec, const int size);
 
+const char* print(const double* vec, const int size);
+
 #endif //UTILS_H

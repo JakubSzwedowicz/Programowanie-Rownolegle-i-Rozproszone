@@ -123,3 +123,18 @@ int quarticFunction17FillInitialVec(double *vec, const int size) {
     }
     return 0;
 }
+
+const char* print(const double* vec, const int size) {
+    static char buffer[1024];
+    char* ptr = buffer;
+    int offset = 0;
+
+    for (int i = 0; i < size; i++) {
+        offset += snprintf(ptr + offset, sizeof(buffer) - offset, "%.2f ", vec[i]);
+        if (offset >= sizeof(buffer)) {
+            break;
+        }
+    }
+
+    return buffer;
+}
