@@ -7,7 +7,7 @@
 #include <time.h>
 #include <stdlib.h>
 
-#include "Nelder-Mead.h"
+#include "nelderMead.h"
 #include "utils.h"
 
 #define ALPHA 1.5
@@ -15,7 +15,7 @@
 #define S     1.0
 
 
-int main(char argc, char **argv) {
+int main(int argc, char **argv) {
     int size = 0;
     int function = 0;
     double epsilon = 1e-3;

@@ -15,7 +15,7 @@ esac
 
 source "$(dirname "$0")/utils.sh"
 
-NM_EXEC=$(find_executable "App")
+NM_EXEC=$(find_executable "app")
 echo "Using executable: $NM_EXEC"
 
 # We will run 6 processes in parallel, each measured by 'time'.
@@ -31,38 +31,38 @@ LOG_DIR="logs/logs_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOG_DIR"
 
 {
-  time "$NM_EXEC" -f 1 -s 1500 -e 6 \
-  > run1.out 2> run1.time
+  time "$NM_EXEC" -f 1 -s 1000 -e 6 \
+  > "${LOG_DIR}/run1.out" 2> "${LOG_DIR}/run1.time"
 } &
 PID1=$!
 
 {
   time "$NM_EXEC" -f 1 -s 1000 -e 9 \
-  > run2.out 2> run2.time
+  > "${LOG_DIR}/run2.out" 2> "${LOG_DIR}/run2.time"
 } &
 PID2=$!
 
 {
-  time "$NM_EXEC" -f 16 -s 500 -e 9 \
-  > run3.out 2> run3.time
+  time "$NM_EXEC" -f 16 -s 200 -e 6 \
+  > "${LOG_DIR}/run3.out" 2> "${LOG_DIR}/run3.time"
 } &
 PID3=$!
 
 {
-  time "$NM_EXEC" -f 16 -s 750 -e 6 \
-  > run4.out 2> run4.time
+  time "$NM_EXEC" -f 16 -s 250 -e 6 \
+  > "${LOG_DIR}/run4.out" 2> "${LOG_DIR}/run4.time"
 } &
 PID4=$!
 
 {
-  time "$NM_EXEC" -f 17 -s 1000 -e 9 \
-  > run5.out 2> run5.time
+  time "$NM_EXEC" -f 17 -s 500 -e 6 \
+  > "${LOG_DIR}/run5.out" 2> "${LOG_DIR}/run5.time"
 } &
 PID5=$!
 
 {
-  time "$NM_EXEC" -f 17 -s 1500 -e 6 \
-  > run6.out 2> run6.time
+  time "$NM_EXEC" -f 17 -s 500 -e 9 \
+  > "${LOG_DIR}/run6.out" 2> "${LOG_DIR}/run6.time"
 } &
 PID6=$!
 
@@ -70,16 +70,14 @@ PID6=$!
 wait "$PID1" "$PID2" "$PID3" "$PID4" "$PID5" "$PID6"
 
 for i in {1..6}; do
-  if [[ -f "run$i.out" ]] && [[ -f "run$i.time" ]]; then
+  if [[ -f "${LOG_DIR}/run$i.out" ]] && [[ -f "${LOG_DIR}/run$i.time" ]]; then
     # Merge them into one .log file
-    echo "=== STDOUT ==="              >  "run${i}_merged.log"
-    cat  "run$i.out"                 >> "run${i}_merged.log"
-    echo -e "\n\n=== TIME/STDERR ===" >> "run${i}_merged.log"
-    cat  "run$i.time"                >> "run${i}_merged.log"
+    echo "=== STDOUT ==="              >  "${LOG_DIR}/run${i}_merged.log"
+    cat  "${LOG_DIR}/run$i.out"                 >> "${LOG_DIR}/run${i}_merged.log"
+    echo -e "\n\n=== TIME/STDERR ===" >> "${LOG_DIR}/run${i}_merged.log"
+    cat  "${LOG_DIR}/run$i.time"                >> "${LOG_DIR}/run${i}_merged.log"
 
-    mv "run${i}_merged.log" "$LOG_DIR"
-
-    rm -f "run$i.out" "run$i.time"
+    rm -f "${LOG_DIR}/run$i.out" "${LOG_DIR}/run$i.time"
   fi
 done
 

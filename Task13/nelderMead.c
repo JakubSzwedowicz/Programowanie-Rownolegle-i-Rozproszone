@@ -2,7 +2,7 @@
 // Created by jakubszwedowicz on 1/4/25.
 //
 
-#include "Nelder-Mead.h"
+#include "nelderMead.h"
 #include "macros.h"
 
 #include <float.h>
@@ -16,13 +16,13 @@ void initializeInitialSimplex(double **simplex, const int simplexSize, const int
     // Create initial vector
     double x0[size]; // Interestingly, since C99 this type of declaration is allowed
     fillInitialVec(x0, size);
-    fillInitialSimplex(simplex, x0, size, distance);
+    fillInitialSimplex(simplex, x0, simplexSize, size, distance);
 }
 
-void fillInitialSimplex(double **simplex, const double *x0, const int size, const double distance) {
+void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size, const double distance) {
     memcpy(simplex[0], x0, size * sizeof(double));
-    for (int i = 1; i < size + 1; i++) {
-        memcpy(simplex[i], simplex[i - 1], size * sizeof(double));
+    for (int i = 1; i < simplexSize; i++) {
+        memcpy(simplex[i], simplex[0], size * sizeof(double));
         simplex[i][i - 1] += distance;
     }
 }

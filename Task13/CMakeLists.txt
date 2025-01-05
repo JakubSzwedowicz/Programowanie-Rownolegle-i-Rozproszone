@@ -1,7 +1,9 @@
-add_library(Nelder-Mead STATIC Nelder-Mead.c)
+add_library(NelderMead STATIC nelderMead.c)
 
-target_compile_features(Nelder-Mead PRIVATE c_std_17)
+target_compile_features(NelderMead PRIVATE c_std_17)
 
-target_include_directories(Nelder-Mead PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(NelderMead PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-target_link_libraries(Nelder-Mead PRIVATE m)
+target_link_libraries(NelderMead PRIVATE m)
+
+add_subdirectory(Tests)

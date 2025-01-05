@@ -42,12 +42,12 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon)
         }
     }
 
-    if (*func == 0 || *size <= 0 || epsilon < 0) {
+    if (*func == 0 || *size <= 0 || *epsilon < 0) {
         fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value>\n"
                 "Examples:\n"
-                "\t./App -f 1 -s 50 -e 3\n"
-                "\t./App -f 16 -s 100 -e 6\n"
-                "\t./App -f 17 -s 150 -e 9\n"
+                "\t./app -f 1 -s 50 -e 3\n"
+                "\t./app -f 16 -s 100 -e 6\n"
+                "\t./app -f 17 -s 150 -e 9\n"
                 "Options:\n"
                 "\t-f     Use function number 1, 16 or 17.\n"
                 "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n"
@@ -141,7 +141,7 @@ int quarticFunction17FillInitialVec(double *vec, const int size) {
 const char *print(const double *vec, const int size) {
     static char buffer[1024];
     char *ptr = buffer;
-    int offset = 0;
+    long unsigned offset = 0;
 
     for (int i = 0; i < size; i++) {
         offset += snprintf(ptr + offset, sizeof(buffer) - offset, "%.2f ", vec[i]);

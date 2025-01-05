@@ -22,7 +22,7 @@ double calculateEuclideanDistance(const double *vec1, const double *vec2, const 
 void initializeInitialSimplex(double **simplex, const int simplexSize, const int size,
                               const Function1ArgFillInitialVec fillInitialVec, const double distance);
 
-void fillInitialSimplex(double **simplex, const double *x0, const int size, const double distance);
+void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size, const double distance);
 
 int allocateSimplex(double ***simplex, const int simplexSize, const int size);
 
