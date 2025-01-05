@@ -31,11 +31,11 @@ Po zbudowaniu programu można uruchomić go skryptem:
 ```
 Wyniki czasowe na moim komputerze (AMD 9800x3d) po uruchomieniu skryptu `./scripts/run_commands_from_README_table.sh`:
 
-| Komenda                  | Czas     |
-|--------------------------|----------|
-| ./app -f 1 -s 1500 -e 6  | 101.685s |
-| ./app -f 1 -s 1000 -e 9  | 40.675s  |
-| ./app -f 16 -s 500 -e 9  | 57.741s  |
-| ./app -f 16 -s 750 -e 6  | 142.663s |
-| ./app -f 17 -s 1000 -e 9 | 40.893s  |
-| ./app -f 17 -s 1500 -e 6 | 102.108s |
+| Komenda                 | Czas     |
+|-------------------------|----------|
+| ./app -f 1 -s 1000 -e 6 | 65.293s  |
+| ./app -f 1 -s 1000 -e 9 | 83.866s  |
+| ./app -f 16 -s 200 -e 6 | 55.766s  |
+| ./app -f 16 -s 250 -e 6 | 134.229s |
+| ./app -f 17 -s 500 -e 6 | 67.791s  |
+| ./app -f 17 -s 500 -e 9 | 109.713s |
