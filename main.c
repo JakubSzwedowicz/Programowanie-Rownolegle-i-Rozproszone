@@ -43,8 +43,8 @@ int main(int argc, char **argv) {
 
     double time_spent = (double) (end - start) / CLOCKS_PER_SEC;
     logMessage("Sequential result:\n");
-    logMessage("\tCommand: %s\n", command);
-    logMessage("\tFunction:  %s\n", getFunctionName(function));
+    logMessage("\tCommand    = %s\n", command);
+    logMessage("\tFunction   = %s\n", getFunctionName(function));
     logMessage("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
     logMessage("\tmin x      = %s\n", print(bestPoint, size));
     logMessage("\tsize       = %d\n", size);

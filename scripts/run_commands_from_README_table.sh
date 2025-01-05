@@ -18,68 +18,60 @@ source "$(dirname "$0")/utils.sh"
 NM_EXEC=$(find_executable "app")
 echo "Using executable: $NM_EXEC"
 
-# We will run 6 processes in parallel, each measured by 'time'.
-# We redirect:
-#   - Standard output to "runX.out"
-#   - Time (and any errors) to "runX.time"
-# so each run’s logs do not intermix.
-
 echo "Spawning multiple processes in parallel (6 total)..."
 
 # Create a timestamped directory for logs so that each run doesn't overwrite the previous logs
 LOG_DIR="logs/logs_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$LOG_DIR"
 
-{
-  time "$NM_EXEC" -f 1 -s 1000 -e 6 \
-  > "${LOG_DIR}/run1.out" 2> "${LOG_DIR}/run1.time"
-} &
-PID1=$!
+TIME_CMD="/usr/bin/time"
+RUN_CMDS=()
 
-{
-  time "$NM_EXEC" -f 1 -s 1000 -e 9 \
-  > "${LOG_DIR}/run2.out" 2> "${LOG_DIR}/run2.time"
-} &
-PID2=$!
+# Faster runs for testing
+#RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 1 -s 200 -e 6 -l $LOG_DIR/run0.log")
+#RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 1 -s 300 -e 9 -l $LOG_DIR/run1.log")
 
-{
-  time "$NM_EXEC" -f 16 -s 200 -e 6 \
-  > "${LOG_DIR}/run3.out" 2> "${LOG_DIR}/run3.time"
-} &
-PID3=$!
+# Default runs
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 1 -s 1000 -e 6 -l $LOG_DIR/run0.log")
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 1 -s 1000 -e 9 -l $LOG_DIR/run1.log")
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 16 -s 200 -e 6 -l $LOG_DIR/run2.log")
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 16 -s 250 -e 6 -l $LOG_DIR/run3.log")
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 17 -s 500 -e 6 -l $LOG_DIR/run4.log")
+RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 17 -s 500 -e 9 -l $LOG_DIR/run5.log")
 
-{
-  time "$NM_EXEC" -f 16 -s 250 -e 6 \
-  > "${LOG_DIR}/run4.out" 2> "${LOG_DIR}/run4.time"
-} &
-PID4=$!
 
-{
-  time "$NM_EXEC" -f 17 -s 500 -e 6 \
-  > "${LOG_DIR}/run5.out" 2> "${LOG_DIR}/run5.time"
-} &
-PID5=$!
-
-{
-  time "$NM_EXEC" -f 17 -s 500 -e 9 \
-  > "${LOG_DIR}/run6.out" 2> "${LOG_DIR}/run6.time"
-} &
-PID6=$!
-
+PIDS=()
+for ((i=0; i<${#RUN_CMDS[@]}; i++)); do
+  {
+    ${RUN_CMDS[$i]} > "$LOG_DIR/run$((i)).out" 2> "$LOG_DIR/run$((i)).time"
+  } &
+  PIDS+=($!)
+done
 # Wait for all background jobs to complete
-wait "$PID1" "$PID2" "$PID3" "$PID4" "$PID5" "$PID6"
+wait "${PIDS[@]}"
 
-for i in {1..6}; do
-  if [[ -f "${LOG_DIR}/run$i.out" ]] && [[ -f "${LOG_DIR}/run$i.time" ]]; then
+
+for ((i=0; i<${#RUN_CMDS[@]}; i++)); do
+  if [[ -f "${LOG_DIR}/run$i.log" ]] \
+    && [[ -f "${LOG_DIR}/run$i.out" ]] \
+    && [[ -f "${LOG_DIR}/run$i.time" ]]; then
     # Merge them into one .log file
-    echo "=== STDOUT ==="              >  "${LOG_DIR}/run${i}_merged.log"
+    echo "=== CLI ==="                          >  "${LOG_DIR}/run${i}_merged.log"
+    echo "Command: ${RUN_CMDS[$i]}"             >> "${LOG_DIR}/run${i}_merged.log"
+    echo "=== Logger ==="                       >> "${LOG_DIR}/run${i}_merged.log"
+    cat  "${LOG_DIR}/run$i.log"                 >> "${LOG_DIR}/run${i}_merged.log"
+    echo "=== STDOUT ==="                       >> "${LOG_DIR}/run${i}_merged.log"
     cat  "${LOG_DIR}/run$i.out"                 >> "${LOG_DIR}/run${i}_merged.log"
-    echo -e "\n\n=== TIME/STDERR ===" >> "${LOG_DIR}/run${i}_merged.log"
+    echo "=== TIME/STDERR ==="                  >> "${LOG_DIR}/run${i}_merged.log"
     cat  "${LOG_DIR}/run$i.time"                >> "${LOG_DIR}/run${i}_merged.log"
 
-    rm -f "${LOG_DIR}/run$i.out" "${LOG_DIR}/run$i.time"
+    rm -f "${LOG_DIR}/run$i.log" "${LOG_DIR}/run$i.out" "${LOG_DIR}/run$i.time"
   fi
 done
 
 echo "Logs have been moved to: $LOG_DIR"
+
+echo "Now generating a summary of the runs..."
+python3 "$(dirname "$0")/generate_README_table.py" "$LOG_DIR"
+
 echo "Done!"
