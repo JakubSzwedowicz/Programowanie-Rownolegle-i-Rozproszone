@@ -37,17 +37,21 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon)
                 break;
             case '?':
             default:
-                fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_value>\n", argv[0]);
+                fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value>\n", argv[0]);
                 return 1;
         }
     }
 
     if (*func == 0 || *size <= 0 || epsilon < 0) {
-        fprintf(stderr, "Usage: %s -f <function_number> -s <Size>\n"
+        fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value>\n"
+                "Examples:\n"
+                "\t./App -f 1 -s 50 -e 3\n"
+                "\t./App -f 16 -s 100 -e 6\n"
+                "\t./App -f 17 -s 150 -e 9\n"
                 "Options:\n"
                 "\t-f     Use function number 1, 16 or 17.\n"
                 "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n"
-                "\t-e     Pass epsilon exponential such as 3, 6, 9 to be used in 1e-x\n", argv[0]);
+                "\t-e     Pass epsilon exponent such as 3, 6, 9 to be used in 1e-x\n", argv[0]);
         return 1;
     }
 

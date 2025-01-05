@@ -15,3 +15,17 @@ Uwaga! Po każdym etapie, tzn. po części:
 a) sekwencyjnej i równoległej przy użyciu wątków lub tablic rozproszonych,
 b) rozproszonej przy użyciu narzędzi opartych na przesyłaniu komunikatów lub z rodziny RPC lub GPGPU,
 należy załadować w odpowiedniej aktywności zzipowany plik z kodem źródłowym programu  oraz sprawozdaniem w terminach podanych w Harmonogramie.
+
+## Uruchomienie programu
+Program podąża za typowym:
+```bash
+mkdir build
+cd build
+cmake ..
+make
+./App <args>
+```
+Po zbudowaniu programu można uruchomić go skryptem:
+```bash
+./scripts/run_tests_fast.sh
+```
