@@ -9,10 +9,11 @@
 #include <math.h>
 
 #include "utils.h"
+#include "logger.h"
 
-int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon) {
+int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon, char* logfile, const int logfileSize) {
     int opt;
-    while ((opt = getopt(argc, argv, "f:s:e:")) != -1) {
+    while ((opt = getopt(argc, argv, "f:s:e:l:")) != -1) {
         switch (opt) {
             case 'f':
                 *func = strtol(optarg, NULL, 10);
@@ -35,23 +36,28 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon)
                     return 1;
                 }
                 break;
+            case 'l':
+                strncpy(logfile, optarg, logfileSize);
+                break;
             case '?':
             default:
-                fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value>\n", argv[0]);
+                fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value> [-l <logfile name>]\n", argv[0]);
                 return 1;
         }
     }
 
     if (*func == 0 || *size <= 0 || *epsilon < 0) {
-        fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value>\n"
+        fprintf(stderr, "Usage: %s -f <function_number> -s <size> -e <epsilon_exponent_value> [-l <logfile name>]\n"
                 "Examples:\n"
                 "\t./app -f 1 -s 50 -e 3\n"
+                "\t./app -f 1 -s 50 -e 3 -l run1_output.log\n"
                 "\t./app -f 16 -s 100 -e 6\n"
                 "\t./app -f 17 -s 150 -e 9\n"
                 "Options:\n"
                 "\t-f     Use function number 1, 16 or 17.\n"
                 "\t-s     Pass vector size such as 50, 100, 150. Greater are not recommended.\n"
-                "\t-e     Pass epsilon exponent such as 3, 6, 9 to be used in 1e-x\n", argv[0]);
+                "\t-e     Pass epsilon exponent such as 3, 6, 9 to be used in 1e-x\n"
+                "\t-l     Optional parameter to pass the name of the logfile\n", argv[0]);
         return 1;
     }
 
@@ -61,14 +67,13 @@ int parseArguments(int argc, char **argv, int *func, int *size, double *epsilon)
 Function1Arg getFunction(const int func) {
     switch (func) {
         case 1:
-            fprintf(stdout, "Using function 1: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
+            logMessage("Using function 1: f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)\n");
             return quadraticFunction1;
         case 16:
-            fprintf(
-                stdout, "Using function 16: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
+            logMessage("Using function 16: f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)\n");
             return trigonometricFunction16;
         case 17:
-            fprintf(stdout, "Using function 17: f(x) = (sum1->N(i * x_i^2))^2\n");
+            logMessage("Using function 17: f(x) = (sum1->N(i * x_i^2))^2\n");
             return quarticFunction17;
         default:
             return NULL;

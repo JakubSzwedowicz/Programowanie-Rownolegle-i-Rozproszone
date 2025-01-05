@@ -9,6 +9,7 @@
 
 #include "nelderMead.h"
 #include "utils.h"
+#include "logger.h"
 
 #define ALPHA 1.5
 #define BETA  0.5
@@ -19,10 +20,15 @@ int main(int argc, char **argv) {
     int size = 0;
     int function = 0;
     double epsilon = 1e-3;
+    char logfile[1024] = "results.log";
 
-    if (parseArguments(argc, argv, &function, &size, &epsilon) != 0) {
+    if (parseArguments(argc, argv, &function, &size, &epsilon, logfile, sizeof(logfile)) != 0) {
         return 1;
     }
+    if (openLogFile(logfile) != 0) {
+        fprintf(stderr, "WARNING: Could not open results.log. Continuing without a log.\n");
+    }
+
 
     double* bestPoint = malloc(size * sizeof(double));
     const Function1Arg func = getFunction(function);
@@ -35,13 +41,13 @@ int main(int argc, char **argv) {
     clock_t end = clock();
 
     double time_spent = (double) (end - start) / CLOCKS_PER_SEC;
-    printf("Sequential result:\n");
-    printf("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
-    printf("\tmin x      = %s\n", print(bestPoint, size));
-    printf("\tsize       = %d\n", size);
-    printf("\tepsilon    = %.g\n", epsilon);
-    printf("\titerations = %d\n", iters);
-    printf("\ttime       = %.3f s\n", time_spent);
+    logMessage("Sequential result:\n");
+    logMessage("\tmin f(x)   = %f\n", quadraticFunction1(bestPoint, size));
+    logMessage("\tmin x      = %s\n", print(bestPoint, size));
+    logMessage("\tsize       = %d\n", size);
+    logMessage("\tepsilon    = %.g\n", epsilon);
+    logMessage("\titerations = %d\n", iters);
+    logMessage("\ttime       = %.3f s\n", time_spent);
 
     free(bestPoint);
     return 0;
