@@ -104,12 +104,12 @@ static void test_nelder_mead_2d(void)
     double beta     = 0.5;
     double epsilon  = 1e-6;
 
-    int ret = nelderMeadSequential(
+    int ret = nelderMeadOpenMP(
         test_function_2d,
         fill_function_2d,
         size,
         distance, alpha, beta, epsilon,
-        bestPoint, &iterations
+        bestPoint, &iterations, 1
     );
     assert(ret == 0);
 
