@@ -13,17 +13,19 @@ find_executable() {
 
 function setup_log_directory() {
   # Create a timestamped directory for logs so that each run doesn't overwrite the previous logs
-  local LOG_DIR="logs/logs_$(date +%Y%m%d_%H%M%S)"
+  local LOG_DIR="logs/$1/logs_$(date +%Y%m%d_%H%M%S)"
   mkdir -p "$LOG_DIR"
   echo "$LOG_DIR"
   return 0
 }
-function get_log_dir_and_time_cmd_and_nm_exec() {
-  local -n _LOG_DIR="$1"
-  local -n _TIME_CMD="$2"
-  local -n _NM_EXEC="$3"
 
-  _LOG_DIR=$(setup_log_directory)
+function get_log_dir_and_time_cmd_and_nm_exec() {
+  local LOG_SUBDIRECTORY="$1"
+  local -n _LOG_DIR="$2"
+  local -n _TIME_CMD="$3"
+  local -n _NM_EXEC="$4"
+
+  _LOG_DIR=$(setup_log_directory "$LOG_SUBDIRECTORY")
   _TIME_CMD="/usr/bin/time"
   _NM_EXEC=$(find_executable "app")
   return $?  # Return the exit code of find_executable
@@ -38,7 +40,7 @@ function run_array_of_cmds_sequentially() {
   fi
   local -n _RUN_CMDS="$array_name"
 
-  echo "This script will run ${#_RUN_CMDS[@]} processes sequentially. Commands are:"
+  echo "This script will run ${#_RUN_CMDS[@]} processes SEQUENTIALLY. Commands are:"
   for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
     echo "Command $i: ${_RUN_CMDS[$i]}"
   done
@@ -60,7 +62,7 @@ function run_array_of_cmds_in_parallel() {
   fi
   local -n _RUN_CMDS="$array_name"
 
-  echo "This script will run ${#_RUN_CMDS[@]} processes in parallel and might drain resources. Commands are:"
+  echo "This script will run ${#_RUN_CMDS[@]} processes in PARALLEL and might drain resources. Commands are:"
   for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
     echo "Command $i: ${_RUN_CMDS[$i]}"
   done

@@ -67,7 +67,7 @@ Zachęcam do uruchamiania skryptów z folderu `scripts` w celu przetestowania pr
 (.venv) jakubszwedowicz@Desktop-Kuba:~/Dev/Programowanie-Rownolegle-i-Rozproszone$ ls scripts/
 process_logs.py                       run_parallel_runs_medium-f16-s200.sh  run_parallel_runs_very_slow-f16-s500.sh  run_regressions_fast.sh
 run_parallel_runs_fast-f1-s200.sh     run_parallel_runs_slow-f1-s1500.sh    run_parallel_sequential_runs_fast.sh     utils.sh
-run_parallel_runs_medium-f1-s1000.sh  run_parallel_runs_slow-f16-s250.sh    run_parallel_sequential_runs_slow.sh
+run_parallel_runs_medium-f1-s1000.sh  run_parallel_runs_slow-f16-s250.sh    run_parallel_sequential_runs_readme_table_slow.sh
 (.venv) jakubszwedowicz@Desktop-Kuba:~/Dev/Programowanie-Rownolegle-i-Rozproszone$ ./scripts/run_parallel_sequential_runs_fast.sh 
 ...
 ```
