@@ -19,7 +19,6 @@ class DataPoint:
     def __repr__(self):
         return f"DataPoint(function={self.function}, command={self.command}, time={self.time}, run_number={self.run_number})"
 
-
     @property
     def threads(self) -> int:
         if self._threads is None:
@@ -80,25 +79,26 @@ def extract_epsilon(command) -> Optional[float]:
     else:
         return None
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Generate a table and/or graph from log files.")
     parser.add_argument("--log_dir", type=str, help="Directory containing the log files", required=True)
     parser.add_argument("--output_table", type=str, default="table.md", help="Output Markdown table file")
     parser.add_argument("--output_graph", type=str, default="elapsed_time_graph.png", help="Output graph image file")
-    parser.add_argument("--graph", action="store_true", help="Generate a graph of elapsed time",
+    parser.add_argument("--graph", action="store_true", help="Generate a graph of elapsed time"
                         )
-    parser.add_argument("--table", action="store_true", help="Generate a Markdown table",
+    parser.add_argument("--table", action="store_true", help="Generate a Markdown table"
                         )
     parser.add_argument("--plot_by", type=str, choices=["threads", "size", "epsilon", "function"], default="threads",
                         help="Attribute to plot the graph by (threads, size, epsilon, function)",
                         )
     return parser.parse_args()
 
+
 def plot_graph(data: List[DataPoint], output_graph: str, plot_by: str) -> None:
     if not data:
         print("No data available for plotting.")
         return
-
 
     grouped_data: Dict[str, List[DataPoint]] = {}
     for dp in data:
@@ -121,23 +121,23 @@ def plot_graph(data: List[DataPoint], output_graph: str, plot_by: str) -> None:
     else:
         for function, dps in grouped_data.items():
             # Extract x and y based on plot_by attribute
-            if plot_by  == "threads":
+            if plot_by == "threads":
                 dps_sorted = sorted(dps, key=lambda x: x.threads if x.threads is not None else 0)
                 x = [dp.threads for dp in dps_sorted if dp.threads is not None]
-            elif plot_by  == "size":
+            elif plot_by == "size":
                 dps_sorted = sorted(dps, key=lambda x: x.size if x.size is not None else 0)
                 x = [dp.size for dp in dps_sorted if dp.size is not None]
-            elif plot_by  == "epsilon":
+            elif plot_by == "epsilon":
                 dps_sorted = sorted(dps, key=lambda x: x.epsilon if x.epsilon is not None else 0.0)
                 x = [dp.epsilon for dp in dps_sorted if dp.epsilon is not None]
             else:
                 print(f"Unknown plot_by attribute: {plot_by}")
                 return
 
-            y = [dp.time for dp in dps_sorted if getattr(dp, plot_by ) is not None]
+            y = [dp.time for dp in dps_sorted if getattr(dp, plot_by) is not None]
 
             if not x or not y:
-                print(f"No valid data for function '{function}' based on '{plot_by }'. Skipping.")
+                print(f"No valid data for function '{function}' based on '{plot_by}'. Skipping.")
                 continue
 
             plt.plot(x, y, marker='o', linestyle='-', label=function)
@@ -158,12 +158,13 @@ def plot_graph(data: List[DataPoint], output_graph: str, plot_by: str) -> None:
     plt.show()
     print(f"Graph saved to {output_graph}")
 
+
 def plot_table(data: list[DataPoint], output_table: str) -> None:
     if not data:
         print("No data available to generate table.")
         return
 
-    table =  "| Function | Komenda | Czas |\n"
+    table = "| Function | Komenda | Czas |\n"
     table += "|----------|-----------------|------------|\n"
 
     for dp in data:
@@ -172,6 +173,7 @@ def plot_table(data: list[DataPoint], output_table: str) -> None:
     with open(output_table, 'w') as table_file:
         table_file.write(table)
         print(f"Markdown table written to {output_table}")
+
 
 def main():
     args = parse_arguments()
