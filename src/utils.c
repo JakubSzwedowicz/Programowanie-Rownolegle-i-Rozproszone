@@ -179,11 +179,11 @@ const char *getFunctionName(const int func) {
     static char buffer[1024];
     switch (func) {
         case 1:
-            return "f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)";
+            return "f₁(x) = ∑ⁿᵢ₌₃[100(xᵢ² + xᵢ₋₁²) + xᵢ₋₂²]";
         case 16:
-            return "f(x) = sum1->N(N - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)";
+            return "f₁₆(x) = ∑ⁿᵢ₌₁[(n - ∑ⁿⱼ₌₁(cosxⱼ) + i(1 - cosxᵢ) - sinxᵢ)²]";
         case 17:
-            return "f(x) = (sum1->N(i * x_i^2))^2";
+            return "f₁₇(x) = [∑ⁿᵢ₌₁(i * xᵢ²)]²";
         default:
             snprintf(buffer, sizeof(buffer), "Unknown function with code %d", func);
             return buffer;
