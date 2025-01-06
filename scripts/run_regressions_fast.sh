@@ -2,6 +2,7 @@
 
 source "$(dirname "$0")/utils.sh"
 NM_EXEC=$(find_executable "app")
+[ $? -ne 0 ] && exit $?
 echo "Using executable: $NM_EXEC"
 
 # 1) Function #1 (quadraticFunction1)

@@ -3,6 +3,7 @@
 source "$(dirname "$0")/utils.sh"
 
 get_log_dir_and_time_cmd_and_nm_exec LOG_DIR TIME_CMD NM_EXEC
+[ $? -ne 0 ] && exit $?
 echo "Using executable: $NM_EXEC"
 
 BASE_COMMAND="-f 1 -s 200 -e 3"

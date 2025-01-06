@@ -4,8 +4,7 @@ find_executable() {
     local exec_name=$1
     local exec_path=$(find . -name "$exec_name" -type f -executable 2>/dev/null | head -n1)
     if [[ -z "$exec_path" ]]; then
-        echo "ERROR: Could not find an executable named '$exec_name' in the CURRENT DIRECTORY or SUBDIRECTORIES.
-        Are you calling inside /scripts/?"
+        echo -e "ERROR: Could not find an executable named '$exec_name' in the CURRENT DIRECTORY or SUBDIRECTORIES. Are you calling inside /scripts/?" >&2
         exit 1
     fi
     echo "$exec_path"
@@ -27,14 +26,14 @@ function get_log_dir_and_time_cmd_and_nm_exec() {
   _LOG_DIR=$(setup_log_directory)
   _TIME_CMD="/usr/bin/time"
   _NM_EXEC=$(find_executable "app")
-
+  return $?  # Return the exit code of find_executable
 }
 
 function run_array_of_cmds_sequentially() {
   local LOG_DIR="$1"
   local array_name="$2"
   if [[ -z "$array_name" ]]; then
-    echo "Error: You must pass the name of an array."
+    echo "Error: You must pass the name of an array." >&2
     return 1
   fi
   local -n _RUN_CMDS="$array_name"
