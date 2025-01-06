@@ -12,29 +12,17 @@
 #include <string.h>
 #include <omp.h>
 
-void initializeInitialSimplex(double **simplex, const int simplexSize, const int size,
-                              const Function1ArgFillInitialVec fillInitialVec, const double distance) {
-    // Create initial vector
-    double x0[size]; // Interestingly, since C99 this type of declaration is allowed
-    fillInitialVec(x0, size);
-    fillInitialSimplex(simplex, x0, simplexSize, size, distance);
-}
-
-void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size,
-                        const double distance) {
-    memcpy(simplex[0], x0, size * sizeof(double));
-    for (int i = 1; i < simplexSize; i++) {
-        memcpy(simplex[i], simplex[0], size * sizeof(double));
-        simplex[i][i - 1] += distance;
-    }
-}
+struct {
+    double value;
+    int index;
+} localData, globalData;
 
 int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
                          const double distance, const double alpha, const double beta, const double epsilon,
                          double *bestPoint, int *iterations, const int openMPThreads
 ) {
     omp_set_num_threads(openMPThreads);
-    omp_set_dynamic(openMPThreads == 1 ? 0 : 1);
+    omp_set_dynamic(0);
 
     // Step 1: Creating initial simplex
     const int simplexSize = size + 1;
@@ -114,47 +102,19 @@ int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec f
     return 0;
 }
 
-int allocateSimplex(double ***simplex, const int simplexSize, const int size) {
-    (*simplex) = (double **) malloc(simplexSize * sizeof(double *));
-    if ((*simplex) == NULL) {
-        return -1;
-    }
-    for (int i = 0; i < simplexSize; i++) {
-        (*simplex)[i] = (double *) malloc(size * sizeof(double));
-        if ((*simplex)[i] == NULL) {
-            for (int j = 0; j < i; j++) {
-                free((*simplex)[j]);
-            }
-            free((*simplex));
-            (*simplex) = NULL;
-            return -1;
-        }
-    }
-    return 0;
-}
-
-int deallocateSimplex(double ***simplex, const int simplexSize) {
-    for (int i = 0; i < simplexSize; i++) {
-        free((*simplex)[i]);
-    }
-    free((*simplex));
-    (*simplex) = NULL; // I like my pointers NULL
-    return 0;
-}
-
 int findMinValuePointIndex(const Function1Arg func, double **simplex, const int simplexSize, const int size) {
     double minValue = DBL_MAX;
     int minValuePointIndex = -1;
 
 #pragma omp parallel
     {
-        double localMinValue = DBL_MAX;
-        int localMinIndex = -1;
+        double localMinValue = minValue;
+        int localMinIndex = minValuePointIndex;
 
 #pragma omp for
         for (int i = 0; i < simplexSize; i++) {
             double value = func(simplex[i], size);
-            if (value < minValue) {
+            if (value < localMinValue) {
                 localMinValue = value;
                 localMinIndex = i;
             }
@@ -171,28 +131,6 @@ int findMinValuePointIndex(const Function1Arg func, double **simplex, const int 
     return minValuePointIndex;
 }
 
-double maxDistanceInSimplex(double **simplex, const int simplexSize, const int size) {
-    double max_dist = 0.0;
-    for (int i = 0; i < simplexSize; i++) {
-        for (int j = i + 1; j < simplexSize; j++) {
-            double dist = calculateEuclideanDistance(simplex[i], simplex[j], size);
-            if (dist > max_dist)
-                max_dist = dist;
-        }
-    }
-    return max_dist;
-}
-
-double calculateEuclideanDistance(const double *vec1, const double *vec2, const int size) {
-    double dist = 0.0;
-    for (int i = 0; i < size; i++) {
-        double diff = vec1[i] - vec2[i];
-        dist += diff * diff;
-    }
-
-    return sqrt(dist);
-}
-
 int reflectSimplex(const double **const simplex, const int simplexSize, const int size, double **reflectedSimplex,
                    const int reflectionPointIndex, const Function1Arg func) {
     const double *const reflectionPoint = simplex[reflectionPointIndex];
@@ -205,7 +143,7 @@ int reflectSimplex(const double **const simplex, const int simplexSize, const in
 #pragma omp parallel
     {
         double localMinValue = minValue;
-        int localMinIdx = reflectionPointIndex;
+        int localMinIdx = minValuePointIndex;
 
 #pragma omp for
         for (int i = 0; i < simplexSize; i++) {
@@ -299,7 +237,7 @@ int contractSimplex(const double **const simplex, const int simplexSize, const i
                 const double value = func(contractedSimplex[i], size);
                 if (value < localMinValue) {
                     localMinValue = value;
-                    localMinIdx = i;
+                    localMinIdx =  i;
                 }
             }
         }
@@ -314,10 +252,4 @@ int contractSimplex(const double **const simplex, const int simplexSize, const i
     }
 
     return minValuePointIndex;
-}
-
-void swapSimplex(double ***simplex1, double ***simplex2) {
-    double **tmp = (*simplex1);
-    (*simplex1) = (*simplex2);
-    (*simplex2) = tmp;
 }

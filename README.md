@@ -75,3 +75,7 @@ Dostępne również są krótkie testy jednostkowe (bez gtesta):
 ```bash
 (.venv) jakubszwedowicz@Desktop-Kuba:~/Dev/Programowanie-Rownolegle-i-Rozproszone/build$ ./Task13/Tests/tests 
 ```
+
+## Zależności
+* OpenMP
+* OpenMPI (`sudo apt install libopenmpi-dev`, może dodatkowo `sudo apt install openmpi-bin openmpi-common`)

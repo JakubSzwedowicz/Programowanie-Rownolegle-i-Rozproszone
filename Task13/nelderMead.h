@@ -5,9 +5,7 @@
 #ifndef NELDER_MEAD_H
 #define NELDER_MEAD_H
 
-typedef double (*Function1Arg)(const double *vec, const int size);
-
-typedef int (*Function1ArgFillInitialVec)(double *vec, const int size);
+#include "common.h"
 
 // Returns 0 if the algorithm converged, 1 otherwise
 int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
@@ -15,20 +13,9 @@ int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec f
                          double *bestPoint, int *iterations, const int openMPThreads
 );
 
-double maxDistanceInSimplex(double **simplex, const int simplexSize, const int size);
-
-double calculateEuclideanDistance(const double *vec1, const double *vec2, const int size);
-
-void initializeInitialSimplex(double **simplex, const int simplexSize, const int size,
-                              const Function1ArgFillInitialVec fillInitialVec, const double distance);
-
-void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size, const double distance);
-
-int allocateSimplex(double ***simplex, const int simplexSize, const int size);
-
-int deallocateSimplex(double ***simplex, const int simplexSize);
 
 int findMinValuePointIndex(const Function1Arg func, double **simplex, const int simplexSize, const int size);
+int findMinValuePointIndexMPI(const Function1Arg func, double **simplex, const int simplexSize, const int size, const int numberOfProcesses, const int rank);
 
 // Returns index of the point with the smallest value
 int reflectSimplex(const double **const simplex, const int simplexSize, const int size, double **reflectedSimplex,
@@ -45,5 +32,4 @@ int expandSimplex(const double **const simplex, const int simplexSize, const int
 int contractSimplex(const double **const simplex, const int simplexSize, const int size, const double beta,
                     double **contractedSimplex, const int contractionPointIndex, const Function1Arg func);
 
-void swapSimplex(double ***simplex1, double ***simplex2);
 #endif //NELDER_MEAD_H
