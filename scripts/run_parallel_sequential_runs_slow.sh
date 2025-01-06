@@ -13,4 +13,5 @@ RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 16 -s 250 -e 6 -l $LOG_DIR/run3.log")
 RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 17 -s 500 -e 6 -l $LOG_DIR/run4.log")
 RUN_CMDS+=("$TIME_CMD $NM_EXEC -f 17 -s 500 -e 9 -l $LOG_DIR/run5.log")
 
-run_array_of_cmds_in_parallel $LOG_DIR RUN_CMDS
+run_array_of_cmds_in_parallel "$LOG_DIR" RUN_CMDS
+merge_logs_and_generate_summary "$LOG_DIR" "function" RUN_CMDS

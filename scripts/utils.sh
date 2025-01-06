@@ -30,6 +30,28 @@ function get_log_dir_and_time_cmd_and_nm_exec() {
 
 }
 
+function run_array_of_cmds_sequentially() {
+  local LOG_DIR="$1"
+  local array_name="$2"
+  if [[ -z "$array_name" ]]; then
+    echo "Error: You must pass the name of an array."
+    return 1
+  fi
+  local -n _RUN_CMDS="$array_name"
+
+  echo "This script will run ${#_RUN_CMDS[@]} processes sequentially. Commands are:"
+  for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
+    echo "Command $i: ${_RUN_CMDS[$i]}"
+  done
+
+  continue_or_abort
+
+  for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
+    echo "Starting command $i..."
+    ${_RUN_CMDS[$i]} > "$LOG_DIR/run$((i)).out" 2> "$LOG_DIR/run$((i)).time"
+  done
+}
+
 function run_array_of_cmds_in_parallel() {
   local LOG_DIR="$1"
   local array_name="$2"
@@ -44,19 +66,11 @@ function run_array_of_cmds_in_parallel() {
     echo "Command $i: ${_RUN_CMDS[$i]}"
   done
 
-  read -r -p "Continue? [y/N] " answer
-  case "${answer,,}" in  # convert to lowercase
-      y|yes)
-          echo "Ok, starting the runs..."
-          ;;
-      *)
-          echo "Aborting."
-          exit 1
-          ;;
-  esac
+  continue_or_abort
 
   local PIDS=()
   for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
+    echo "Starting command $i..."
     {
       ${_RUN_CMDS[$i]} > "$LOG_DIR/run$((i)).out" 2> "$LOG_DIR/run$((i)).time"
     } &
@@ -64,7 +78,17 @@ function run_array_of_cmds_in_parallel() {
   done
   # Wait for all background jobs to complete
   wait "${PIDS[@]}"
+}
 
+function merge_logs_and_generate_summary() {
+  local LOG_DIR="$1"
+  local PLOT_BY="$2"
+  local array_name="$3"
+  if [[ -z "$array_name" ]]; then
+    echo "Error: You must pass the name of an array."
+    return 1
+  fi
+  local -n _RUN_CMDS="$array_name"
 
   for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
     if [[ -f "${LOG_DIR}/run$i.log" ]] \
@@ -87,8 +111,22 @@ function run_array_of_cmds_in_parallel() {
   echo "Logs have been moved to: $LOG_DIR"
 
   echo "Now generating a summary of the runs..."
-  python3 "$(dirname "$0")/generate_README_table.py" "$LOG_DIR"
+  python3 "$(dirname "$0")/process_logs.py" --log_dir "$LOG_DIR" --graph --table --plot_by "$PLOT_BY"
 
   echo "Done!"
   return 0;
+}
+
+
+function continue_or_abort() {
+    read -r -p "Continue? [y/N] " answer
+    case "${answer,,}" in  # convert to lowercase
+        y|yes)
+            echo "Ok, starting the runs..."
+            ;;
+        *)
+            echo "Aborting."
+            exit 1
+            ;;
+    esac
 }

@@ -45,7 +45,7 @@ int main(int argc, char **argv) {
         nelderMeadOpenMP(func, fillInitialVec, size, S, ALPHA, BETA, epsilon, bestPoint, &iters, numberOfThreads);
         gettimeofday(&end, NULL);
 
-        elapsed = (end.tv_sec - start.tv_sec) + (end.tv_usec - start.tv_usec) / 1000000.0;
+        elapsed = (end.tv_sec - start.tv_sec) + ((end.tv_usec - start.tv_usec) / 1000000.0);
     }
     logMessage("Sequential result:\n");
     logMessage("\tCommand       = %s\n", command);
