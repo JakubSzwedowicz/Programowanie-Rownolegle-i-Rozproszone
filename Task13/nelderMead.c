@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <omp.h>
 
 void initializeInitialSimplex(double **simplex, const int simplexSize, const int size,
                               const Function1ArgFillInitialVec fillInitialVec, const double distance) {
@@ -19,7 +20,8 @@ void initializeInitialSimplex(double **simplex, const int simplexSize, const int
     fillInitialSimplex(simplex, x0, simplexSize, size, distance);
 }
 
-void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size, const double distance) {
+void fillInitialSimplex(double **simplex, const double *x0, const int simplexSize, const int size,
+                        const double distance) {
     memcpy(simplex[0], x0, size * sizeof(double));
     for (int i = 1; i < simplexSize; i++) {
         memcpy(simplex[i], simplex[0], size * sizeof(double));
@@ -27,10 +29,13 @@ void fillInitialSimplex(double **simplex, const double *x0, const int simplexSiz
     }
 }
 
-int nelderMeadSequential(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
+int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
                          const double distance, const double alpha, const double beta, const double epsilon,
-                         double *bestPoint, int *iterations
+                         double *bestPoint, int *iterations, const int openMPThreads
 ) {
+    omp_set_num_threads(openMPThreads);
+    omp_set_dynamic(openMPThreads == 1 ? 0 : 1);
+
     // Step 1: Creating initial simplex
     const int simplexSize = size + 1;
     double **simplex = NULL;
@@ -52,29 +57,22 @@ int nelderMeadSequential(const Function1Arg func, const Function1ArgFillInitialV
 
     initializeInitialSimplex(simplex, simplexSize, size, fillInitialVec, distance);
 
-    int minValuePointIndex = -1; {
-        double minValue = DBL_MAX;
-        // Step 2: Calculate values of function in each point of simplex & find the best one
-        for (int i = 0; i < simplexSize; i++) {
-            double value = func(simplex[i], size);
-            if (value < minValue) {
-                minValue = value;
-                minValuePointIndex = i;
-            }
-        }
-    }
+    // Step 2: Calculate values of function in each point of simplex & find the best one
+    int minValuePointIndex = findMinValuePointIndex(func, simplex, simplexSize, size);
 
     int iters = 1;
     for (int running = 1; running; iters++) {
         // Step 3: Reflection
-        const int reflectedSimplexMinValuePointIndex = reflectSimplex(simplex, simplexSize, size, reflectedSimplex,
+        const int reflectedSimplexMinValuePointIndex = reflectSimplex((const double **const) simplex, simplexSize, size,
+                                                                      reflectedSimplex,
                                                                       minValuePointIndex,
                                                                       func);
 
 
         if (reflectedSimplexMinValuePointIndex != minValuePointIndex) {
             // Step 4: Expansion
-            const int expandedSimplexMinValuePointIndex = expandSimplex(reflectedSimplex, simplexSize, size, alpha,
+            const int expandedSimplexMinValuePointIndex = expandSimplex((const double **const) reflectedSimplex,
+                                                                        simplexSize, size, alpha,
                                                                         expandedSimplex,
                                                                         reflectedSimplexMinValuePointIndex,
                                                                         func);
@@ -89,10 +87,11 @@ int nelderMeadSequential(const Function1Arg func, const Function1ArgFillInitialV
         } else {
             // Step 5: Contraction
             // Based on the formula in the algorithm description we contract the simplex, not reflectedSimplex
-            const int contractedSimplexMinValuePointIndex = contractSimplex(simplex, simplexSize, size, beta,
-                                                                            contractedSimplex,
-                                                                            minValuePointIndex,
-                                                                            func);
+            const int contractedSimplexMinValuePointIndex = contractSimplex(
+                (const double **const) simplex, simplexSize, size, beta,
+                contractedSimplex,
+                minValuePointIndex,
+                func);
             swapSimplex(&simplex, &contractedSimplex);
             minValuePointIndex = contractedSimplexMinValuePointIndex;
 
@@ -143,6 +142,35 @@ int deallocateSimplex(double ***simplex, const int simplexSize) {
     return 0;
 }
 
+int findMinValuePointIndex(const Function1Arg func, double **simplex, const int simplexSize, const int size) {
+    double minValue = DBL_MAX;
+    int minValuePointIndex = -1;
+
+#pragma omp parallel
+    {
+        double localMinValue = DBL_MAX;
+        int localMinIndex = -1;
+
+#pragma omp for
+        for (int i = 0; i < simplexSize; i++) {
+            double value = func(simplex[i], size);
+            if (value < minValue) {
+                localMinValue = value;
+                localMinIndex = i;
+            }
+        }
+
+#pragma omp critical
+        {
+            if (localMinValue < minValue) {
+                minValue = localMinValue;
+                minValuePointIndex = localMinIndex;
+            }
+        }
+    }
+    return minValuePointIndex;
+}
+
 double maxDistanceInSimplex(double **simplex, const int simplexSize, const int size) {
     double max_dist = 0.0;
     for (int i = 0; i < simplexSize; i++) {
@@ -173,15 +201,31 @@ int reflectSimplex(const double **const simplex, const int simplexSize, const in
 
     int minValuePointIndex = reflectionPointIndex;
     double minValue = func(reflectionPoint, size);
-    for (int i = 0; i < simplexSize; i++) {
-        if (LIKELY(i != reflectionPointIndex)) {
-            for (int j = 0; j < size; j++) {
-                reflectedSimplex[i][j] = 2.0 * reflectionPoint[j] - simplex[i][j];
+
+#pragma omp parallel
+    {
+        double localMinValue = minValue;
+        int localMinIdx = reflectionPointIndex;
+
+#pragma omp for
+        for (int i = 0; i < simplexSize; i++) {
+            if (LIKELY(i != reflectionPointIndex)) {
+                for (int j = 0; j < size; j++) {
+                    reflectedSimplex[i][j] = 2.0 * reflectionPoint[j] - simplex[i][j];
+                }
+                const double value = func(reflectedSimplex[i], size);
+                if (value < localMinValue) {
+                    localMinValue = value;
+                    localMinIdx = i;
+                }
             }
-            const double value = func(reflectedSimplex[i], size);
-            if (value < minValue) {
-                minValue = value;
-                minValuePointIndex = i;
+        }
+
+#pragma omp critical
+        {
+            if (localMinValue < minValue) {
+                minValue = localMinValue;
+                minValuePointIndex = localMinIdx;
             }
         }
     }
@@ -197,17 +241,32 @@ int expandSimplex(const double **const simplex, const int simplexSize, const int
 
     double minValue = func(expansionPoint, size);
     int minValuePointIndex = expansionPointIndex;
-    for (int i = 0; i < simplexSize; i++) {
-        if (LIKELY(i != expansionPointIndex)) {
-            for (int j = 0; j < size; j++) {
-                expandedSimplex[i][j] =
-                        alpha * simplex[i][j] + (1.0 - alpha) * expansionPoint[j];
-            }
 
-            const double value = func(expandedSimplex[i], size);
-            if (value < minValue) {
-                minValue = value;
-                minValuePointIndex = i;
+#pragma omp parallel
+    {
+        double localMinValue = minValue;
+        int localMinIdx = expansionPointIndex;
+
+#pragma omp for
+        for (int i = 0; i < simplexSize; i++) {
+            if (LIKELY(i != expansionPointIndex)) {
+                for (int j = 0; j < size; j++) {
+                    expandedSimplex[i][j] =
+                            alpha * simplex[i][j] + (1.0 - alpha) * expansionPoint[j];
+                }
+
+                const double value = func(expandedSimplex[i], size);
+                if (value < localMinValue) {
+                    localMinValue = value;
+                    localMinIdx = i;
+                }
+            }
+        }
+#pragma omp critical
+        {
+            if (localMinValue < minValue) {
+                minValue = localMinValue;
+                minValuePointIndex = localMinIdx;
             }
         }
     }
@@ -224,16 +283,32 @@ int contractSimplex(const double **const simplex, const int simplexSize, const i
 
     double minValue = func(contractionPoint, size);
     int minValuePointIndex = contractionPointIndex;
-    for (int i = 0; i < simplexSize; i++) {
-        if (LIKELY(i != contractionPointIndex)) {
-            for (int j = 0; j < size; j++) {
-                contractedSimplex[i][j] =
-                        beta * simplex[i][j] + (1.0 - beta) * contractionPoint[j];
+
+#pragma omp parallel
+    {
+        double localMinValue = minValue;
+        int localMinIdx = contractionPointIndex;
+
+#pragma omp for
+        for (int i = 0; i < simplexSize; i++) {
+            if (LIKELY(i != contractionPointIndex)) {
+                for (int j = 0; j < size; j++) {
+                    contractedSimplex[i][j] =
+                            beta * simplex[i][j] + (1.0 - beta) * contractionPoint[j];
+                }
+                const double value = func(contractedSimplex[i], size);
+                if (value < localMinValue) {
+                    localMinValue = value;
+                    localMinIdx = i;
+                }
             }
-            const double value = func(contractedSimplex[i], size);
-            if (value < minValue) {
-                minValue = value;
-                minValuePointIndex = i;
+        }
+
+#pragma omp critical
+        {
+            if (localMinValue < minValue) {
+                minValue = localMinValue;
+                minValuePointIndex = localMinIdx;
             }
         }
     }

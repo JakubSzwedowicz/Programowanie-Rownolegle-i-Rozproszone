@@ -10,9 +10,9 @@ typedef double (*Function1Arg)(const double *vec, const int size);
 typedef int (*Function1ArgFillInitialVec)(double *vec, const int size);
 
 // Returns 0 if the algorithm converged, 1 otherwise
-int nelderMeadSequential(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
+int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
                          const double distance, const double alpha, const double beta, const double epsilon,
-                         double *bestPoint, int *iterations
+                         double *bestPoint, int *iterations, const int openMPThreads
 );
 
 double maxDistanceInSimplex(double **simplex, const int simplexSize, const int size);
@@ -27,6 +27,8 @@ void fillInitialSimplex(double **simplex, const double *x0, const int simplexSiz
 int allocateSimplex(double ***simplex, const int simplexSize, const int size);
 
 int deallocateSimplex(double ***simplex, const int simplexSize);
+
+int findMinValuePointIndex(const Function1Arg func, double **simplex, const int simplexSize, const int size);
 
 // Returns index of the point with the smallest value
 int reflectSimplex(const double **const simplex, const int simplexSize, const int size, double **reflectedSimplex,
