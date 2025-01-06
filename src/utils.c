@@ -181,7 +181,7 @@ const char *getFunctionName(const int func) {
         case 1:
             return "f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2)";
         case 16:
-            return "f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)";
+            return "f(x) = sum1->N(N - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2)";
         case 17:
             return "f(x) = (sum1->N(i * x_i^2))^2";
         default:
