@@ -36,16 +36,16 @@ Wyniki czasowe na moim komputerze (AMD 9800x3d) po uruchomieniu skryptu `./scrip
 * (-s) oznacza wymiar
 * (-e) oznacza wykładnik epsilona
 * (-l) oznacza plik logów
-* (-t) oznacza ilość wątków, domy
+* (-t) oznacza ilość wątków (domyślnie 1)
 
 | Function | Komenda | Czas |
 |----------|-----------------|------------|
-| f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2) | ./cmake-build-debug/app -f 1 -s 1000 -e 6 -l logs/logs_20250106_052819/run0.log | 65.572372 s |
-| f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2) | ./cmake-build-debug/app -f 1 -s 1000 -e 9 -l logs/logs_20250106_052819/run1.log | 84.155852 s |
-| f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2) | ./cmake-build-debug/app -f 16 -s 200 -e 6 -l logs/logs_20250106_052819/run2.log | 54.552103 s |
-| f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2) | ./cmake-build-debug/app -f 16 -s 250 -e 6 -l logs/logs_20250106_052819/run3.log | 132.072216 s |
-| f(x) = (sum1->N(i * x_i^2))^2 | ./cmake-build-debug/app -f 17 -s 500 -e 6 -l logs/logs_20250106_052819/run4.log | 66.173542 s |
-| f(x) = (sum1->N(i * x_i^2))^2 | ./cmake-build-debug/app -f 17 -s 500 -e 9 -l logs/logs_20250106_052819/run5.log | 107.36707 s |
+| f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2) | ./cmake-build-debug/app -f 1 -s 1000 -e 6 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run0.log | 66.733026 s |
+| f(x) = sum3->N(100(x_i^2 + x_{i-1}^2) + x_{i-2}^2) | ./cmake-build-debug/app -f 1 -s 1000 -e 9 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run1.log | 84.47374 s |
+| f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2) | ./cmake-build-debug/app -f 16 -s 200 -e 6 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run2.log | 54.962484 s |
+| f(x) = sum1->N(n - sum1->N(cos(x_j)) + (i)(1 - cos(x_i)) - sin(x_i))^2) | ./cmake-build-debug/app -f 16 -s 250 -e 6 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run3.log | 134.388142 s |
+| f(x) = (sum1->N(i * x_i^2))^2 | ./cmake-build-debug/app -f 17 -s 500 -e 6 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run4.log | 69.433453 s |
+| f(x) = (sum1->N(i * x_i^2))^2 | ./cmake-build-debug/app -f 17 -s 500 -e 9 -l logs/parallel_sequential_runs_readme_table/logs_20250106_210612/run5.log | 109.897441 s |
 
 Można wygenerować powyższą tabelę z dowolnych plików logów (bez względu na nazwę, 
 aczkolwiek jeśli mają być posortowane to musi w nazwie być człon `run...`) 
