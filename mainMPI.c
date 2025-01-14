@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
         logMessage("\tepsilon          = %.g\n",epsilon);
         logMessage("\topenMPThreads    = %d\n", numberOfThreads);
         logMessage("\tOpenMPIProcesses = %d\n", numberOfProcesses);
+        logMessage("\titerations       = %d\n", iters);
         logMessage("\ttime             = %.6f s\n", elapsed);
     }
 
