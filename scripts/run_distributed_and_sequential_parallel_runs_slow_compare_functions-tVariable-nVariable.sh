@@ -7,9 +7,9 @@ get_log_dir_and_time_cmd_and_mpi_exec "run_distributed_and_sequential_parallel_r
 echo "Using executable: $NM_EXEC"
 
 BASE_COMMANDS=()
-BASE_COMMANDS+=("-f 1 -s 1500 -e 3")
+BASE_COMMANDS+=("-f 1 -s 1500 -e 6")
 BASE_COMMANDS+=("-f 16 -s 300 -e 3")
-BASE_COMMANDS+=("-f 17 -s 1000 -e 3")
+BASE_COMMANDS+=("-f 17 -s 1000 -e 6")
 
 RUN_CMDS=()
 RUNi=0

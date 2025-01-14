@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.19)
 
 project(Programowanie_Rownolegle_I_Rozproszone LANGUAGES C)
 
-add_compile_options(-g -O0)
+add_compile_options(-O3)
 
 add_subdirectory(src)
 
