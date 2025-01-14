@@ -2,13 +2,13 @@
 
 source "$(dirname "$0")/utils.sh"
 
-get_log_dir_and_time_cmd_and_nm_exec "sequential_parallel_runs_slow_compare_functions-tVariable.sh" LOG_DIR TIME_CMD NM_EXEC
+get_log_dir_and_time_cmd_and_nm_exec "run_sequential_parallel_runs_slow_compare_functions-tVariable" LOG_DIR TIME_CMD NM_EXEC
 [ $? -ne 0 ] && exit $?
 echo "Using executable: $NM_EXEC"
 
-BASE_COMMAND_F1="-f 1 -s 1500 -e 3"
+BASE_COMMAND_F1="-f 1 -s 1500 -e 6"
 BASE_COMMAND_F16="-f 16 -s 300 -e 3"
-BASE_COMMAND_F17="-f 17 -s 1000 -e 3"
+BASE_COMMAND_F17="-f 17 -s 1000 -e 6"
 
 RUN_CMDS=()
 RUN_CMDS+=("$TIME_CMD $NM_EXEC $BASE_COMMAND_F1 -t 1 -l $LOG_DIR/run0.log")

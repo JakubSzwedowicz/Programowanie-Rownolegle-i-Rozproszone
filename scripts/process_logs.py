@@ -7,17 +7,18 @@ import matplotlib.pyplot as plt
 
 
 class DataPoint:
-    def __init__(self, function: str, command: str, time: float, run_number: int):
+    def __init__(self, function: str, command: str, time: float, run_number: int, processes: int):
         self.function = function
         self.command = command
         self.time = time
         self.run_number = run_number
+        self.processes = processes
         self._epsilon = None
         self._size = None
         self._threads = None
 
     def __repr__(self):
-        return f"DataPoint(function={self.function}, command={self.command}, time={self.time}, run_number={self.run_number})"
+        return f"DataPoint(function={self.function}, command={self.command}, time={self.time}, run_number={self.run_number}, processes={self.processes})"
 
     @property
     def threads(self) -> int:
@@ -36,7 +37,6 @@ class DataPoint:
         if self._epsilon is None:
             self._epsilon = extract_epsilon(self.command)
         return self._epsilon
-
 
 def extract_thread_count(command) -> Optional[int]:
     """
@@ -89,8 +89,8 @@ def parse_arguments():
                         )
     parser.add_argument("--table", action="store_true", help="Generate a Markdown table"
                         )
-    parser.add_argument("--plot_by", type=str, choices=["threads", "size", "epsilon", "function"], default="threads",
-                        help="Attribute to plot the graph by (threads, size, epsilon, function)",
+    parser.add_argument("--plot_by", type=str, choices=["threads", "size", "epsilon", "function", "processes"], default="threads",
+                        help="Attribute to plot the graph by (threads, size, epsilon, function, processes)",
                         )
     return parser.parse_args()
 
@@ -130,6 +130,9 @@ def plot_graph(data: List[DataPoint], output_graph: str, plot_by: str) -> None:
             elif plot_by == "epsilon":
                 dps_sorted = sorted(dps, key=lambda x: x.epsilon if x.epsilon is not None else 0.0)
                 x = [dp.epsilon for dp in dps_sorted if dp.epsilon is not None]
+            elif plot_by == "processes":
+                dps_sorted = sorted(dps, key=lambda x: x.processes if x.processes is not None else 0)
+                x = [dp.processes for dp in dps_sorted if dp.processes is not None]
             else:
                 print(f"Unknown plot_by attribute: {plot_by}")
                 return
@@ -149,6 +152,9 @@ def plot_graph(data: List[DataPoint], output_graph: str, plot_by: str) -> None:
             plt.xlabel('Size')
         elif plot_by == "epsilon":
             plt.xlabel('Epsilon')
+        elif plot_by == "processes":
+             plt.xlabel('Processes')
+
 
     plt.ylabel('Execution Time (s)')
     plt.grid(True)
@@ -186,6 +192,7 @@ def main():
     function_pattern = re.compile(r"Function\s*=\s*(.*)")
     command_pattern = re.compile(r"Command\s*=\s*(.*)")
     time_pattern = re.compile(r"time\s*=\s*([0-9]+\.[0-9]+\s*s)")
+    processes_pattern = re.compile(r"OpenMPIProcesses\s*=\s*(\d+)")
 
     data: list[DataPoint] = []
 
@@ -201,13 +208,13 @@ def main():
             command_match = command_pattern.search(content)
             time_match = time_pattern.search(content)
             run_number_match = re.search(r'run(\d+)', filename)
+            processes_match = processes_pattern.search(content)
 
-            if function_match and command_match and time_match and run_number_match:
+            if function_match and command_match and time_match and run_number_match and processes_match:
                 function = function_match.group(1).strip()
                 command = command_match.group(1).strip()
                 time_str = time_match.group(1).strip()
 
-                # Convert time to float (seconds)
                 try:
                     time_seconds = float(time_str.split()[0])
                 except ValueError:
@@ -220,7 +227,13 @@ def main():
                     print(f"Warning: Could not extract run number from filename {filename}")
                     continue
 
-                data.append(DataPoint(function, command, time_seconds, run_number))
+                try:
+                    processes = int(processes_match.group(1))
+                except ValueError:
+                    print(f"Warning: Could not parse processes in file {filename}")
+                    continue
+
+                data.append(DataPoint(function, command, time_seconds, run_number, processes))
 
     if args.table:
         plot_table(data, args.log_dir + '/' + args.output_table)

@@ -47,16 +47,17 @@ int main(int argc, char **argv) {
 
         elapsed = (end.tv_sec - start.tv_sec) + ((end.tv_usec - start.tv_usec) / 1000000.0);
     }
-    logMessage("Sequential result:\n");
-    logMessage("\tCommand       = %s\n", command);
-    logMessage("\tFunction      = %s\n", getFunctionName(function));
-    logMessage("\tmin f(x)      = %f\n", quadraticFunction1(bestPoint, size));
-    logMessage("\tmin x         = %s\n", print(bestPoint, size));
-    logMessage("\tsize          = %d\n", size);
-    logMessage("\tepsilon       = %.g\n", epsilon);
-    logMessage("\topenMPThreads = %d\n", numberOfThreads);
-    logMessage("\titerations    = %d\n", iters);
-    logMessage("\ttime          = %.6f s\n", elapsed);
+    logMessage("Parallel result (OpenMP):\n");
+    logMessage("\tCommand          = %s\n", command);
+    logMessage("\tFunction         = %s\n", getFunctionName(function));
+    logMessage("\tmin f(x)         = %f\n", quadraticFunction1(bestPoint, size));
+    logMessage("\tmin x            = %s\n", print(bestPoint, size));
+    logMessage("\tsize             = %d\n", size);
+    logMessage("\tepsilon          = %.g\n", epsilon);
+    logMessage("\topenMPThreads    = %d\n", numberOfThreads);
+    logMessage("\tOpenMPIProcesses = %d\n", 1);
+    logMessage("\titerations       = %d\n", iters);
+    logMessage("\ttime             = %.6f s\n", elapsed);
 
 
     free(bestPoint);

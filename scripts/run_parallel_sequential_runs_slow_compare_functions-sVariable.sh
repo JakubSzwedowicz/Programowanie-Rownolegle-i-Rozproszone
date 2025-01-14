@@ -2,7 +2,7 @@
 
 source "$(dirname "$0")/utils.sh"
 
-get_log_dir_and_time_cmd_and_nm_exec "parallel_sequential_runs_slow_compare_functions-sVariable" LOG_DIR TIME_CMD NM_EXEC
+get_log_dir_and_time_cmd_and_nm_exec "run_parallel_sequential_runs_slow_compare_functions-sVariable" LOG_DIR TIME_CMD NM_EXEC
 [ $? -ne 0 ] && exit $?
 echo "Using executable: $NM_EXEC"
 

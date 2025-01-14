@@ -4,7 +4,7 @@ find_executable() {
     local exec_name=$1
     local exec_path=$(find . -name "$exec_name" -type f -executable 2>/dev/null | head -n1)
     if [[ -z "$exec_path" ]]; then
-        echo -e "ERROR: Could not find an executable named '$exec_name' in the CURRENT DIRECTORY or SUBDIRECTORIES. Are you calling inside /scripts/?" >&2
+        echo -e "ERROR: Could not find an executable named '$exec_name' in the CURRENT DIRECTORY or SUBDIRECTORIES. Are you calling inside scripts/ or maybe you didn't build the target?" >&2
         exit 1
     fi
     echo "$exec_path"
@@ -103,7 +103,9 @@ function merge_logs_and_generate_summary() {
   fi
   local -n _RUN_CMDS="$array_name"
 
+  echo "RUN_CMDS size ${#_RUN_CMDS[@]}"
   for ((i=0; i<${#_RUN_CMDS[@]}; i++)); do
+    echo "Iter i = ${i}"
     if [[ -f "${LOG_DIR}/run$i.log" ]] \
       && [[ -f "${LOG_DIR}/run$i.out" ]] \
       && [[ -f "${LOG_DIR}/run$i.time" ]]; then

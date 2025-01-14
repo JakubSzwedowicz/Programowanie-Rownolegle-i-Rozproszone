@@ -2,7 +2,7 @@
 
 source "$(dirname "$0")/utils.sh"
 
-get_log_dir_and_time_cmd_and_nm_exec "regressions" LOG_DIR TIME_CMD NM_EXEC
+get_log_dir_and_time_cmd_and_nm_exec "run_regressions_fast" LOG_DIR TIME_CMD NM_EXEC
 NM_EXEC=$(find_executable "app")
 [ $? -ne 0 ] && exit $?
 echo "Using executable: $NM_EXEC"
