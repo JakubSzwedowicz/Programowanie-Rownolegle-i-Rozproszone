@@ -175,6 +175,27 @@ const char *print(const double *vec, const int size) {
     return buffer;
 }
 
+const char *printSimplex(const double **simplex, const int simplexSize, const int size) {
+    static char buffer[2024];
+    char *ptr = buffer;
+    long unsigned offset = 0;
+
+    offset += snprintf(ptr + offset, sizeof(buffer) - offset, "[");
+    for (int i = 0; i < simplexSize; i++) {
+        if (i != 0) offset += snprintf(ptr + offset, sizeof(buffer) - offset, "\n");
+        offset += snprintf(ptr + offset, sizeof(buffer) - offset, "[");
+        for (int j = 0; j < size; j++) {
+            offset += snprintf(ptr + offset, sizeof(buffer) - offset, "%.2f ", simplex[i][j]);
+            if (offset >= sizeof(buffer)) {
+                return "error";
+            }
+        }
+        offset += snprintf(ptr + offset, sizeof(buffer) - offset, "]");
+    }
+    offset += snprintf(ptr + offset, sizeof(buffer) - offset, "]");
+    return buffer;
+}
+
 const char *getFunctionName(const int func) {
     static char buffer[1024];
     switch (func) {

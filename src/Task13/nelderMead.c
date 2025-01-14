@@ -4,6 +4,7 @@
 
 #include "nelderMead.h"
 #include "macros.h"
+#include "common.h"
 
 #include <float.h>
 #include <math.h>
@@ -12,14 +13,9 @@
 #include <string.h>
 #include <omp.h>
 
-struct {
-    double value;
-    int index;
-} localData, globalData;
-
 int nelderMeadOpenMP(const Function1Arg func, const Function1ArgFillInitialVec fillInitialVec, const int size,
-                         const double distance, const double alpha, const double beta, const double epsilon,
-                         double *bestPoint, int *iterations, const int openMPThreads
+                     const double distance, const double alpha, const double beta, const double epsilon,
+                     double *bestPoint, int *iterations, const int openMPThreads
 ) {
     omp_set_num_threads(openMPThreads);
     omp_set_dynamic(0);
@@ -237,7 +233,7 @@ int contractSimplex(const double **const simplex, const int simplexSize, const i
                 const double value = func(contractedSimplex[i], size);
                 if (value < localMinValue) {
                     localMinValue = value;
-                    localMinIdx =  i;
+                    localMinIdx = i;
                 }
             }
         }

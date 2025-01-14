@@ -31,6 +31,18 @@ function get_log_dir_and_time_cmd_and_nm_exec() {
   return $?  # Return the exit code of find_executable
 }
 
+function get_log_dir_and_time_cmd_and_mpi_exec() {
+  local LOG_SUBDIRECTORY="$1"
+  local -n _LOG_DIR="$2"
+  local -n _TIME_CMD="$3"
+  local -n _NM_EXEC="$4"
+
+  _LOG_DIR=$(setup_log_directory "$LOG_SUBDIRECTORY")
+  _TIME_CMD="/usr/bin/time"
+  _NM_EXEC=$(find_executable "appMPI")
+  return $?  # Return the exit code of find_executable
+}
+
 function run_array_of_cmds_sequentially() {
   local LOG_DIR="$1"
   local array_name="$2"
